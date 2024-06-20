@@ -7,8 +7,6 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-const API_URL: &str = "http://localhost:3000";
-
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![greet])
