@@ -15,6 +15,10 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "dialog": {
+        "message": true,
+        "confirm": true
       }
     },
     "windows": [

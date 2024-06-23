@@ -1,11 +1,16 @@
-import { useNavigate } from "react-router-dom";
+import HomeButton from "../components/homeButton";
+import { invoke } from "@tauri-apps/api";
 
 function Lyric() {
-    const navigate = useNavigate();
+    const handleTest = async () => {
+        await invoke("login_test");
+    };
 
     return (
         <div>
-            <button onClick={() => navigate('/')}>Home</button>
+            <h1>Lyric</h1>
+            <HomeButton position="" />
+            <button onClick={handleTest}>Test</button>
         </div>
     );
 }
