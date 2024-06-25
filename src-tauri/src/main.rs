@@ -4,11 +4,15 @@
 mod api;
 mod controllers;
 mod models;
+mod utils;
 
 use actix_web::{rt, web, App, HttpServer};
 use api::server::Token;
 use api::spotify_api::{self};
-use controllers::{login, login_test};
+use controllers::{
+    close_window, get_id, get_image_url, get_lyrics, get_play_status, get_time, get_username,
+    login, login_test, lyric_window, original_window, save_lyrics, test,
+};
 use std::{
     env,
     sync::{Arc, Mutex},
@@ -34,7 +38,21 @@ fn main() {
     });
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![login, login_test])
+        .invoke_handler(tauri::generate_handler![
+            login,
+            login_test,
+            get_username,
+            close_window,
+            lyric_window,
+            original_window,
+            get_image_url,
+            get_lyrics,
+            get_id,
+            get_play_status,
+            get_time,
+            save_lyrics,
+            test
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

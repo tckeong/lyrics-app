@@ -3,26 +3,25 @@ import { invoke, dialog } from "@tauri-apps/api";
 import { open } from "@tauri-apps/api/shell";
 import HomeButton from "../components/homeButton";
 import styles from "./styles/login";
-import server from "../api/server";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 function Login() {
     const [clientId, setClientId] = useState<string>('');
     const [clientSecret, setClientSecret] = useState<string>('');
     const navigate = useNavigate();
 
-    const loginMessage = (login: boolean) => {
-        if (login) {
+    const loginMessage = async (username: string | boolean, err: string | null) => {
+        if (username) {
             dialog.message('login success!', {
                 title: 'spotify-lyrics-app',
                 type: 'info'
             });
+
+            Cookies.set("user", username as string);
             navigate("/");
-            // TODO!
-            localStorage.setItem("token", "token");
-            localStorage.setItem("user", "user");
         } else {
-            dialog.message('login unsuccess!', {
+            dialog.message(`login unsuccess! ${err}`, {
                 title: 'spotify-lyrics-app',
                 type: 'info'
             });
@@ -32,23 +31,15 @@ function Login() {
     }
 
     const handleAuth = async () => {
-        await invoke("login", { client_id: clientId, client_secret: clientSecret });
-
-        const client_id = clientId;
-        const redirect_uri = `${server.backend_Url}/callback`;
-        const scope = 'user-read-private user-read-email';
-        const queryParams = new URLSearchParams({
-            response_type: 'code',
-            client_id: client_id,
-            scope: scope,
-            redirect_uri: redirect_uri,
-        }).toString();
-        
-        const auth_url = 'https://accounts.spotify.com/authorize?' + queryParams;
-        open(auth_url);
-        await invoke("login_test")
-                .then((_) => loginMessage(true))
-                .catch((_) => loginMessage(false));
+        await invoke("login", { client_id: clientId, client_secret: clientSecret })
+                .then(async (auth_url) => {
+                    await open(auth_url as string);
+                    await setTimeout(async () => {
+                        await invoke("get_username")
+                            .then((name) => loginMessage(name as string, null))
+                            .catch((err) => loginMessage(false, err as string));
+                    }, 1000);
+                }).catch((err) => console.log(err));
     }
 
     return (

@@ -1,5 +1,6 @@
 import { dialog } from "@tauri-apps/api";
 import styles from "./styles/dropDown";
+import Cookies from "js-cookie";
 
 interface DropdownProps {
   open: boolean;
@@ -7,7 +8,7 @@ interface DropdownProps {
 
 const Dropdown = ({open}: DropdownProps) => {
   const logout = () => {
-    localStorage.clear();
+    Cookies.remove("user");
     window.location.reload();
     dialog.message("Logout success!", {
       title: "spotify-lyrics-app",

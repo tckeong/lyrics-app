@@ -23,10 +23,12 @@
     },
     "windows": [
       {
+        "label": "main",
         "resizable": false,
         "title": "spotify-lyrics-app",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "center": true
       }
     ],
     "security": {

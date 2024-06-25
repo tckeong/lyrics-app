@@ -1,13 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
+import { invoke } from "@tauri-apps/api";
 import  styles  from "./styles/index"
 import UserButton from "../components/userButton";
+import Cookies from "js-cookie";
 
 function Index() {
-  const token = localStorage.getItem("token");
-  const user = localStorage.getItem("user") ?? "";
-  let login = token != null; 
+  const user = Cookies.get("user") ?? "";
+  const login = user !== "";
   const navigate = useNavigate();
 
   return (
@@ -26,7 +27,7 @@ function Index() {
         </div>
       </div>
       <div className="grid grid-rows-2 grid-cols-3 row-start-2 row-span-2">
-        <button className={styles.startButton} onClick={() => navigate("lyric/1")}>
+        <button className={styles.startButton} onClick={async () => {await invoke("lyric_window"); invoke("close_window")}}>
           start
         </button>
         <button className={styles.lyricsLsButton} onClick={() => navigate("lyrics-ls")}>
