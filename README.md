@@ -76,27 +76,27 @@ npm run tauri build
 
 ```
 | spotify-lyrics-app/
-├── src-tauri/ # tauri src
+├── src-tauri/            # tauri src
 │ ├── src/
-│ │ ├── main.rs # Main Rust entry point
-│ │ ├── api/ # Handles all api
-| | | ├── spotify_api/ # Handles all spotify api, like get spotify credentials, get current playing track and so on
-| | | ├── server.rs # Handles all api relevant to callback and get the spotify api token
-| | | └── mod.rs # Abstract the api, make them easier to use by the controllers
-| | ├── controllers/ # Handles all tauri frontend app function invoke
-| | ├── models/ # Handles all the web response data models
-| | └── utils/ # Handles all the services that relevant to create local folder and local file
-│ ├── tauri.conf.json # Tauri configuration
-│ └── Cargo.toml # Rust dependencies
+│ │ ├── main.rs           # Main Rust entry point
+│ │ ├── api/              # Handles all api
+| | | ├── spotify_api/    # Handles all spotify api, like get spotify credentials, get current playing track and so on
+| | | ├── server.rs       # Handles all api relevant to callback and get the spotify api token
+| | | └── mod.rs          # Abstract the api, make them easier to use by the controllers
+| | ├── controllers/      # Handles all tauri frontend app function invoke
+| | ├── models/           # Handles all the web response data models
+| | └── utils/            # Handles all the services that relevant to create local folder and local file
+│ ├── tauri.conf.json     # Tauri configuration
+│ └── Cargo.toml          # Rust dependencies
 ├── src/
-│ ├── components/ # React components, stores all the components that used in the pages
+│ ├── components/         # React components, stores all the components that used in the pages
 | | └── utils/
-| ├── pages/ # stores all the pages
-│ └── App.tsx # Main React component, handles the pages route
-├── package.json # Node.js dependencies
+| ├── pages/              # stores all the pages
+│ └── App.tsx             # Main React component, handles the pages route
+├── package.json          # Node.js dependencies
 ├── tailwind.config.js
 ├── vite.config.ts
-└── README.md # This file
+└── README.md             # This file
 ```
 
 ## Troubleshooting
