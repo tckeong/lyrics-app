@@ -1,5 +1,7 @@
 use crate::models::{LyricsResponse, SongsResponse};
+use regex::Regex;
 use serde_json::Value;
+use std::error::Error;
 
 pub mod server;
 pub mod spotify_api;
@@ -81,37 +83,66 @@ impl LyricsAPI {
             return Ok(artist);
         }
 
-        // special case for mayday
-        if artist.to_lowercase().replace(" ", "") == "mayday" {
-            return Ok("五月天".to_string());
-        }
-
-        let from = "en";
-        let to = "zh";
-        // google translate api
-        let url = format!(
-            "https://translate.googleapis.com/translate_a/single?client=gtx&sl={}&tl={}&dt=t&q={}",
-            from, to, artist
-        );
-
-        let response = reqwest::get(&url)
-            .await
-            .map_err(|_| "Translate Error!".to_string())?
-            .text()
-            .await
-            .map_err(|_| "Translate Error!")?;
-
-        let translated_text: String = serde_json::from_str::<Value>(&response)
-            .map_err(|_| "Translate Error!".to_string())?[0][0][0]
+        // special case
+        let result: Result<String, Box<dyn Error>> = match artist
+            .clone()
+            .replace(" ", "")
+            .to_lowercase()
             .as_str()
-            .unwrap()
-            .to_string();
+        {
+            "mayday" => return Ok("五月天".to_string()),
+            "f.i.r" => return Ok("飞儿乐团".to_string()),
+            "jiajia" => return Ok("家家".to_string()),
+            "powerstation" => return Ok("动力火车".to_string()),
+            "abinfang" => return Ok("方炯镔".to_string()),
+            "a-lin" => return Ok("黄丽玲".to_string()),
+            _ => {
+                let from = "en";
+                let to = "zh";
+                // google translate api
+                let url = format!(
+                                    "https://translate.googleapis.com/translate_a/single?client=gtx&sl={}&tl={}&dt=t&q={}",
+                                    from, to, artist
+                                );
 
-        Ok(translated_text)
+                let response = reqwest::get(&url)
+                    .await
+                    .map_err(|_| "Translate Error!".to_string())?
+                    .text()
+                    .await
+                    .map_err(|_| "Translate Error!")?;
+
+                let translated_text: String = serde_json::from_str::<Value>(&response)
+                    .map_err(|_| "Translate Error!".to_string())?[0][0][0]
+                    .as_str()
+                    .unwrap()
+                    .to_string();
+
+                Ok(translated_text)
+            }
+        };
+
+        result.map_err(|e| e.to_string())
+    }
+
+    fn title_extract(&self, title: String) -> Result<String, String> {
+        let re = Regex::new(r"^(.*?)\s*\(").unwrap();
+        let title = title.as_str();
+
+        if let Some(captures) = re.captures(title) {
+            return Ok(captures
+                .get(1)
+                .map(|m| m.as_str())
+                .ok_or("No title found!".to_string())?
+                .to_string());
+        } else {
+            return Ok(title.to_string());
+        }
     }
 
     pub async fn get_songs(self, title: String, artist: String) -> Result<Self, String> {
         let artist = self.artist_name_mapper(artist, title.clone()).await?;
+        let title = self.title_extract(title)?;
 
         let response = self
             .client

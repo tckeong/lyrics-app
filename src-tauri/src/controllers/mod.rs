@@ -1,6 +1,6 @@
 use tauri::window;
 
-use crate::{api::LyricsAPI, spotify_api::SpotifyApi, utils::Utils};
+use crate::{api::LyricsAPI, models::SavedLyric, spotify_api::SpotifyApi, utils::Utils};
 use reqwest::Url;
 use std::env;
 
@@ -23,7 +23,21 @@ pub fn login(client_id: &str, client_secret: &str) -> Result<String, String> {
         .map_err(|_| "Error parsing URL!")?
         .to_string();
 
+    Utils::new()
+        .save_authentication(client_id, client_secret)
+        .map_err(|e| e.to_string())?;
+
     Ok(url)
+}
+
+#[tauri::command]
+pub async fn auth_check() -> Result<(String, String), String> {
+    let (client_id, client_secret) = Utils::new()
+        .get_authentication()
+        .await
+        .map_err(|_| "Auth Check failed!".to_string())?;
+
+    Ok((client_id, client_secret))
 }
 
 // return true if test pass, return false if no token found!
@@ -55,7 +69,7 @@ pub async fn get_username() -> Result<String, String> {
 
 #[tauri::command]
 pub async fn lyric_window(app: tauri::AppHandle) -> Result<(), String> {
-    let _ = tauri::WindowBuilder::new(&app, "label", tauri::WindowUrl::App("/lyric/1".into()))
+    let _ = tauri::WindowBuilder::new(&app, "label", tauri::WindowUrl::App("/lyric".into()))
         .center()
         .title("spotify-lyrics-app -- Lyrics")
         .resizable(false)
@@ -81,24 +95,23 @@ pub async fn original_window(app: tauri::AppHandle) {
 }
 
 #[tauri::command]
-pub async fn test() -> Result<String, String> {
-    let lyrics = LyricsAPI::new()
-        .get_songs("青花瓷".to_string(), "周杰伦".to_string())
-        .await?
-        .get_lyrics()
-        .await?;
-
-    Ok(lyrics)
-}
-
-#[tauri::command]
 pub async fn get_lyrics() -> Result<String, String> {
     let (title, artist) = SpotifyApi::new().get_title_artist().await?;
-    let lyrics = LyricsAPI::new()
-        .get_songs(title, artist)
-        .await?
-        .get_lyrics()
-        .await?;
+
+    let lyrics = match Utils::new()
+        .check_lyrics(title.clone())
+        .await
+        .map_err(|_| "No lyrics found!".to_string())
+    {
+        Ok(lyrics) => lyrics,
+        Err(_) => {
+            LyricsAPI::new()
+                .get_songs(title.clone(), artist.clone())
+                .await?
+                .get_lyrics()
+                .await?
+        }
+    };
 
     Ok(lyrics)
 }
@@ -134,15 +147,36 @@ pub async fn get_time() -> Result<u64, String> {
 #[tauri::command]
 pub async fn save_lyrics() -> Result<(), String> {
     let (title, artist) = SpotifyApi::new().get_title_artist().await?;
-    let lyrics = LyricsAPI::new()
-        .get_songs(title.clone(), artist)
-        .await?
-        .get_lyrics()
-        .await?;
 
-    let utils = Utils::new();
-    utils
-        .save_lrc(title, lyrics)
+    match Utils::new()
+        .check_lyrics(title.clone())
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|_| "No lyrics found!".to_string())
+    {
+        Ok(_) => return Ok(()),
+        Err(_) => {
+            let lyrics = LyricsAPI::new()
+                .get_songs(title.clone(), artist.clone())
+                .await?
+                .get_lyrics()
+                .await?;
+            let img = SpotifyApi::new().get_current_img().await?;
+            Utils::new()
+                .save_lyric(title, artist, img, lyrics)
+                .await
+                .map_err(|e| e.to_string())?
+        }
+    };
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_lyrics_list() -> Result<Vec<SavedLyric>, String> {
+    let data = Utils::new()
+        .get_lyrics_list()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(data.lyrics)
 }

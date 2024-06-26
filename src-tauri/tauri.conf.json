@@ -7,18 +7,32 @@
   },
   "package": {
     "productName": "spotify-lyrics-app",
-    "version": "0.0.0"
+    "version": "1.0.0"
   },
   "tauri": {
     "allowlist": {
       "all": false,
       "shell": {
         "all": false,
-        "open": true
+        "open": true,
+        "execute": true
       },
       "dialog": {
         "message": true,
         "confirm": true
+      },
+      "fs": {
+        "all": false,
+        "copyFile": false,
+        "createDir": true,
+        "exists": true,
+        "readDir": true,
+        "readFile": true,
+        "removeDir": false,
+        "removeFile": false,
+        "renameFile": false,
+        "scope": [],
+        "writeFile": true
       }
     },
     "windows": [
@@ -37,7 +51,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "com.teo.spotifylyricsapp",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",

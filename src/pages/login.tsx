@@ -19,6 +19,7 @@ function Login() {
             });
 
             Cookies.set("user", username as string);
+            Cookies.remove("logout");
             navigate("/");
         } else {
             dialog.message(`login unsuccess! ${err}`, {
@@ -28,7 +29,7 @@ function Login() {
             setClientId("");
             setClientSecret("");
         }
-    }
+    };
 
     const handleAuth = async () => {
         await invoke("login", { client_id: clientId, client_secret: clientSecret })

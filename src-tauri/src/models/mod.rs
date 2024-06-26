@@ -154,3 +154,15 @@ pub struct SongsResponse {
     #[serde(rename = "result")]
     pub result: SongsResult,
 }
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct SavedLyric {
+    pub name: String,
+    pub artist: String,
+    pub img: String,
+}
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct SavedLyrics {
+    pub lyrics: Vec<SavedLyric>,
+}

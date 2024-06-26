@@ -5,16 +5,20 @@ import { invoke } from "@tauri-apps/api";
 
 interface LyricsAreaProps {
     position: string;
+    timeOffSet: React.MutableRefObject<number>;
 }
 
-function LyricsArea({ position }: LyricsAreaProps) {
+function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
     const className = `overflow-y-auto h-full w-full ${position} font-mono text-2xl text-center py-10 font-medium mx-8`;
+    const [notFound, setNotFound] = useState<boolean>(false);
+    const [notPlaying, setNotPlaying] = useState<boolean>(false);
     const [id, setId] = useState<string>("");
     const [lyrics, setLyrics] = useState<string[]>([]);
     const [times, setTimes] = useState<number[]>([]);
     const [elapsedTime, setElapsedTime] = useState<number>(0);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const lyricsContainer = useRef<HTMLDivElement>(null);
+    const prevLineRef = useRef<number>(-1);
     const startTimeRef = useRef<number>(0);
     const isPlayingRef = useRef<boolean>(false);
     const index = useMemo(() => countLine(elapsedTime, times), [elapsedTime]);
@@ -25,13 +29,18 @@ function LyricsArea({ position }: LyricsAreaProps) {
 
         if (lyricsContainer.current) {
             const container = lyricsContainer.current;
-            const prevLine = container.children[index - 1] as HTMLElement;
+            const prevLine = container.children[prevLineRef.current] as HTMLElement;
             const currentLine = container.children[index] as HTMLElement;
-            if (prevLine) {
+
+            if (prevLine && prevLineRef.current < index) {
                 prevLine.classList.remove("text-gray-900");
                 prevLine.classList.remove("font-bold");
                 prevLine.classList.remove("text-white");
                 prevLine.classList.add("text-gray-600");
+            } else if (prevLine && prevLineRef.current > index) {
+                prevLine.classList.remove("text-gray-900");
+                prevLine.classList.remove("font-bold");
+                prevLine.classList.add("text-white");
             }
 
             if (currentLine) {
@@ -43,6 +52,8 @@ function LyricsArea({ position }: LyricsAreaProps) {
                 const scrollTop = currentLine.offsetTop - containerHeight / 2  + lineHeight; 
                 container.scrollTo({ top: scrollTop, behavior: 'smooth' });
             }
+
+            prevLineRef.current = index;
           }
     }
 
@@ -52,7 +63,7 @@ function LyricsArea({ position }: LyricsAreaProps) {
                 if (curId !== id) {
                     setId(curId);
                 }
-            });
+            }).catch((_) => setNotPlaying(true));
 
             invoke("get_play_status").then((isPlaying) => {
                 isPlayingRef.current = isPlaying as boolean;
@@ -63,6 +74,12 @@ function LyricsArea({ position }: LyricsAreaProps) {
     }, []);
 
     useEffect(() => {
+        invoke("get_time").then((time) => {
+            startTimeRef.current = Date.now() - (time as number) + timeOffSet.current;
+        });
+    }, [timeOffSet.current, id]);
+
+    useEffect(() => {
         invoke("get_lyrics").then((lrc) => {
             const lrcContents = lrc as string;
             const parsedLyrics = parseLRC(lrcContents);
@@ -71,16 +88,13 @@ function LyricsArea({ position }: LyricsAreaProps) {
 
             setLyrics(lyrics);
             setTimes(times);
-            invoke("get_time").then((time) => {
-                startTimeRef.current = Date.now() - (time as number) - 800;
-            });
 
             intervalRef.current = setInterval(() => {
                 if (isPlayingRef.current) {
                     setElapsedTime(Date.now() - startTimeRef.current);
                 }
             }, 10);
-        });
+        }).catch((_) => setNotFound(true));
 
         return () => clearInterval(intervalRef.current as NodeJS.Timeout);
     }, [id]);
@@ -91,6 +105,8 @@ function LyricsArea({ position }: LyricsAreaProps) {
 
     return (
         <div ref={lyricsContainer} className={className}>
+            { notPlaying && <p className="text-gray-600">No Music Playing!</p> }
+            { (notFound || lyrics.length === 0) && <p className="text-gray-600">No Lyrics Found! Please start the neteaseapi server!</p> }
             {
                 lyrics.map((lyric, i) => (
                     i < index 

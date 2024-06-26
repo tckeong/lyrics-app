@@ -38,7 +38,11 @@ impl Token {
         let auth = TokenAuth::auth(client_auth).await.unwrap();
 
         {
-            let mut token = token.lock().unwrap();
+            let mut token = match token.lock() {
+                Ok(token) => token,
+                Err(poisoned) => poisoned.into_inner(),
+            };
+
             token.auth = Some(auth.clone());
             token.access_token = Some(auth.get_access_token());
         }
@@ -51,7 +55,10 @@ impl Token {
         req: web::Json<TokenRequest>,
     ) -> impl Responder {
         if req.state == "122_)%dhA33sdbu@#$" {
-            let mut token_auth = token_auth.lock().unwrap();
+            let mut token_auth = match token_auth.lock() {
+                Ok(token_auth) => token_auth,
+                Err(poisoned) => poisoned.into_inner(),
+            };
 
             if let Some(mut auth) = token_auth.auth.clone() {
                 if auth.check().await.unwrap() {

@@ -1,7 +1,23 @@
 import HomeButton from "../components/homeButton";
 import styles from "./styles/lyrics-list";
+import { invoke } from "@tauri-apps/api";
+import { useEffect, useState } from "react";
+
+interface SavedLyric {
+    name: string,
+    artist: string,
+    img: string,
+}
 
 function LyricsList() {    
+    const [lyrics, setLyrics] = useState<SavedLyric[]>([]);
+
+    useEffect(() => {
+        invoke("get_lyrics_list").then((res) => {
+            setLyrics(res as SavedLyric[]);
+        }).catch((err) => console.log(err));
+    }, []);
+
     return (
         <div className="grid grid-rows-5 w-full h-full">
             <div className="grid grid-cols-3 row-start-1 row-end-2 mb-4">
@@ -18,16 +34,17 @@ function LyricsList() {
                         </tr>
                     </thead>
                     <tbody className="text-gray-800">
-                        <tr>
-                            <td><img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/sddefault.jpg"/></td>
-                            <td className="font-bold">Never Gonna Give You Up</td>
-                            <td>Rick Astley</td>
-                        </tr>
-                        <tr>
-                            <td><img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/sddefault.jpg"/></td>
-                            <td className="font-bold">Never Gonna Give You Up</td>
-                            <td>Rick Astley</td>
-                        </tr>
+                        {
+                            lyrics.map((savedLyric, id) => {
+                                return (
+                                    <tr key={id}>
+                                        <td><img src={savedLyric.img} className="h-[194px] w-[258px]"/></td>
+                                        <td className="font-bold">{savedLyric.name}</td>
+                                        <td>{savedLyric.artist}</td>
+                                    </tr>
+                                );
+                            })
+                        }
                     </tbody>
                 </table>
             </div>

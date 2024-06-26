@@ -13,7 +13,7 @@ function App() {
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
         <Route path="/lyrics-ls" element={<LyricsList />} />
-        <Route path="/lyric/:id" element={<Lyric />} />
+        <Route path="/lyric" element={<Lyric />} />
       </Routes>
     </BrowserRouter>  
     </>
