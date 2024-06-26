@@ -125,6 +125,8 @@ pub struct OriginSongSimpleData {
     pub name: String,
     #[serde(rename = "songId")]
     pub id: u32,
+    #[serde(rename = "artists")]
+    pub artists: Vec<Ar>,
 }
 
 #[derive(Debug, Deserialize, Clone)]

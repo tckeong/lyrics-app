@@ -38,7 +38,11 @@ impl LyricsAPI {
             .iter()
             .map(|s| {
                 if let Some(origin) = &s.origin {
-                    (origin.name.clone(), origin.id, s.ar[0].name.clone())
+                    (
+                        origin.name.clone(),
+                        origin.id,
+                        origin.artists[0].name.clone(),
+                    )
                 } else {
                     (s.name.clone(), s.id, s.ar[0].name.clone())
                 }
