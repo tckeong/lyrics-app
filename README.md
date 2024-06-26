@@ -74,6 +74,7 @@ npm run tauri build
 
 ## Project Structure
 
+```
 | spotify-lyrics-app/
 ├── src-tauri/ # tauri src
 │ ├── src/
@@ -96,6 +97,7 @@ npm run tauri build
 ├── tailwind.config.js
 ├── vite.config.ts
 └── README.md # This file
+```
 
 ## Troubleshooting
 
