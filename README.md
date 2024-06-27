@@ -4,6 +4,10 @@
 
 This Lyrics App (Spotify) is a desktop application that allows users to view lyrics for the currently playing Spotify track of their own spotify account. The app is built using Tauri, React, TailwindCSS and Rust, and it leverages the Spotify API to fetch track details and use [NeteaseCloudMusicApi](https://gitlab.com/Binaryify/neteasecloudmusicapi) to fetch the lyrics.
 
+## Blog About this app
+
+[Blog Address](https://medium.com/@teo238540/desktop-application-development-in-tauri-025e53053a26)
+
 ## Features
 
 - **Spotify Authentication**: Users can log in with their Spotify account.
