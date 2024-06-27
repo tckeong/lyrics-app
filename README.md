@@ -129,3 +129,4 @@ This project is licensed under the MIT License. See the LICENSE file for details
 - [Vite](https://vitejs.dev/)
 - [TailwindCSS](https://tailwindcss.com/)
 - [Spotify API](https://developer.spotify.com/documentation/web-api)
+- [NetEaseCloudMusicAPI](https://gitlab.com/Binaryify/neteasecloudmusicapi)
