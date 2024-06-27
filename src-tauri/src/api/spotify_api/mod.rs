@@ -109,4 +109,14 @@ impl SpotifyApi {
             Err("No progress found!".to_string())
         }
     }
+
+    pub async fn get_duration(&self) -> Result<u64, String> {
+        let current_track = self.get_current_playing().await?;
+
+        if let Some(track) = current_track.item {
+            Ok(track.duration)
+        } else {
+            Err("No duration found!".to_string())
+        }
+    }
 }

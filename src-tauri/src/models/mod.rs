@@ -94,6 +94,8 @@ pub struct Track {
     #[serde(rename = "artists")]
     pub artists: Vec<Artist>,
     pub album: Album,
+    #[serde(rename = "duration_ms")]
+    pub duration: u64,
 }
 
 #[derive(Debug, Deserialize)]

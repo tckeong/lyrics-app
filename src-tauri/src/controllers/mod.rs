@@ -145,6 +145,13 @@ pub async fn get_time() -> Result<u64, String> {
 }
 
 #[tauri::command]
+pub async fn get_duration() -> Result<u64, String> {
+    let duration = SpotifyApi::new().get_duration().await?;
+
+    Ok(duration)
+}
+
+#[tauri::command]
 pub async fn save_lyrics() -> Result<(), String> {
     let (title, artist) = SpotifyApi::new().get_title_artist().await?;
 

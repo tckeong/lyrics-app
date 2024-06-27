@@ -5,6 +5,7 @@ use std::error::Error;
 use std::fs::{self, File, OpenOptions};
 use std::hash::Hasher;
 use std::io::{Read, Seek, SeekFrom, Write};
+use std::path::Path;
 
 pub struct Utils {
     path: String,
@@ -135,7 +136,8 @@ impl Utils {
             if path.is_file() {
                 if let Some(file_name) = path.file_name() {
                     let file_name = file_name.to_str().unwrap();
-                    if Self::hash_utf8(title.as_str()) == file_name {
+                    let file_name = Path::new(file_name).file_stem().unwrap().to_str().unwrap();
+                    if Self::hash_utf8(title.as_str()) == file_name.to_string() {
                         let mut file = File::open(path)?;
                         let mut data = String::new();
                         file.read_to_string(&mut data)?;

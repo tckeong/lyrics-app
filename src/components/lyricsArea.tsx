@@ -15,6 +15,7 @@ function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
     const [id, setId] = useState<string>("");
     const [lyrics, setLyrics] = useState<string[]>([]);
     const [times, setTimes] = useState<number[]>([]);
+    const durationRef = useRef<number>(0);
     const [elapsedTime, setElapsedTime] = useState<number>(0);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const lyricsContainer = useRef<HTMLDivElement>(null);
@@ -74,12 +75,26 @@ function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
     }, []);
 
     useEffect(() => {
+        const interval = setInterval(() => {
+            invoke("get_time").then((time) => {
+                startTimeRef.current = Date.now() - (time as number) + timeOffSet.current;
+            });
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
         invoke("get_time").then((time) => {
             startTimeRef.current = Date.now() - (time as number) + timeOffSet.current;
         });
     }, [timeOffSet.current, id]);
 
     useEffect(() => {
+        invoke("get_duration")
+            .then((duration) => durationRef.current = duration as number)
+            .catch((_) => console.log("Error getting duration"));
+
         invoke("get_lyrics").then((lrc) => {
             const lrcContents = lrc as string;
             const parsedLyrics = parseLRC(lrcContents);
@@ -91,7 +106,7 @@ function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
 
             intervalRef.current = setInterval(() => {
                 if (isPlayingRef.current) {
-                    setElapsedTime(Date.now() - startTimeRef.current);
+                    setElapsedTime((Date.now() - startTimeRef.current) % durationRef.current);
                 }
             }, 10);
         }).catch((_) => setNotFound(true));
