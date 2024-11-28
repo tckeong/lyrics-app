@@ -14,7 +14,7 @@ function parseLRC(lrcContent: string) {
         if (timeMatch) {
             const minutes = parseInt(timeMatch[1], 10);
             const seconds = parseInt(timeMatch[2], 10);
-            const milliseconds = parseInt(timeMatch[3].slice(1), 10);
+            const milliseconds = parseInt(timeMatch[3].slice(1), 10);   
             const time = minutes * 60000 + seconds * 1000 + milliseconds;
 
             const lyric = line.replace(timeExp, '').trim();
