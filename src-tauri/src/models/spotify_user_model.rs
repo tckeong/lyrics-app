@@ -1,12 +1,11 @@
+use super::{ExternalUrls, Image};
 use serde::{Deserialize, Serialize};
-use super::{Image, ExternalUrls};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Followers {
     href: Option<String>,
     total: u32,
 }
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct User {

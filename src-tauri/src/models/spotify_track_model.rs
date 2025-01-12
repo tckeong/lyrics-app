@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use super::{ExternalUrls, Image};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Context {

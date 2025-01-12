@@ -2,38 +2,28 @@
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
-    "devPath": "http://localhost:1420",
-    "distDir": "../dist"
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420"
   },
-  "package": {
-    "productName": "spotify-lyrics-app",
-    "version": "1.0.2"
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
   },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true,
-        "execute": true
-      },
-      "dialog": {
-        "message": true,
-        "confirm": true
-      },
-      "fs": {
-        "all": false,
-        "copyFile": false,
-        "createDir": true,
-        "exists": true,
-        "readDir": true,
-        "readFile": true,
-        "removeDir": false,
-        "removeFile": false,
-        "renameFile": false,
-        "scope": [],
-        "writeFile": true
-      }
+  "productName": "spotify-lyrics-app",
+  "mainBinaryName": "spotify-lyrics-app",
+  "version": "1.0.2",
+  "identifier": "com.teo.spotifylyricsapp",
+  "plugins": {},
+  "app": {
+    "security": {
+      "csp": null
     },
     "windows": [
       {
@@ -42,23 +32,9 @@
         "title": "spotify-lyrics-app",
         "width": 800,
         "height": 600,
-        "center": true
+        "center": true,
+        "useHttpsScheme": true
       }
-    ],
-    "security": {
-      "csp": null
-    },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.teo.spotifylyricsapp",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
-    }
+    ]
   }
 }

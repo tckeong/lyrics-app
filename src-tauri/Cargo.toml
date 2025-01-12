@@ -8,10 +8,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [ "fs-read-file", "fs-create-dir", "fs-exists", "shell-open", "fs-write-file", "fs-read-dir", "shell-execute", "dialog-confirm", "dialog-message"] }
+tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 reqwest = { version = "0.11", features= ["json"] }
@@ -19,6 +19,13 @@ tokio = { version = "1", features = ["full"] }
 actix-web = "4.8.0"
 chrono = "0.4"
 regex = "1.10"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-shell = "2"
+
+[lib]
+name = "lyrics_app"
+crate-type = ["staticlib", "cdylib", "rlib", "lib"]
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

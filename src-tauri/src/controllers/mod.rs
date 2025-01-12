@@ -1,5 +1,3 @@
-use tauri::window;
-
 use crate::{api::LyricsAPI, models::SavedLyric, spotify_api::SpotifyApi, utils::Utils};
 use reqwest::Url;
 use std::env;
@@ -69,7 +67,7 @@ pub async fn get_username() -> Result<String, String> {
 
 #[tauri::command]
 pub async fn lyric_window(app: tauri::AppHandle) -> Result<(), String> {
-    let _ = tauri::WindowBuilder::new(&app, "label", tauri::WindowUrl::App("/lyric".into()))
+    let _ = tauri::WebviewWindowBuilder::new(&app, "label", tauri::WebviewUrl::App("/lyric".into()))
         .center()
         .title("spotify-lyrics-app -- Lyrics")
         .resizable(false)
@@ -82,14 +80,15 @@ pub async fn lyric_window(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn close_window(window: window::Window) {
+pub fn close_window(window: tauri::Window) {
     window.close().unwrap();
 }
 
 #[tauri::command]
 pub async fn original_window(app: tauri::AppHandle) {
     let _ =
-        tauri::WindowBuilder::from_config(&app, app.config().tauri.windows.get(0).unwrap().clone())
+        tauri::WebviewWindowBuilder::from_config(&app, &app.config().app.windows.get(0).unwrap().clone())
+            .unwrap()
             .build()
             .unwrap();
 }

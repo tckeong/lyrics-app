@@ -1,16 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-pub mod spotify_credentials_model;
-pub mod spotify_user_model;
-pub mod spotify_track_model;
 pub mod netease_lyrics_model;
 pub mod netease_songs_model;
+pub mod spotify_credentials_model;
+pub mod spotify_track_model;
+pub mod spotify_user_model;
 
-pub use spotify_credentials_model::{AuthResponse, RefreshResponse};
-pub use spotify_user_model::User;
-pub use spotify_track_model::CurrentlyPlayingTrack;
 pub use netease_lyrics_model::LyricsResponse;
 pub use netease_songs_model::SongsResponse;
+pub use spotify_credentials_model::{AuthResponse, RefreshResponse};
+pub use spotify_track_model::CurrentlyPlayingTrack;
+pub use spotify_user_model::User;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ExternalUrls {
