@@ -2,6 +2,8 @@ node_modules
 target
 data
 
+.idea
+.vscode
 
 *.png
 *.txt
