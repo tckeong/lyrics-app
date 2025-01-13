@@ -1,3 +1,7 @@
+# <span style="color:gray">Deprecated due to unknown problem of tauri.</span>
+
+![image]("error.png")
+
 # Lyrics App
 
 ## Overview
@@ -10,16 +14,16 @@ This Lyrics App (Spotify) is a desktop application that allows users to view lyr
 
 ## Features
 
-- **Spotify Authentication**: Users can log in with their Spotify account.
-- **Lyrics Display**: Fetches and displays lyrics for the currently playing track.
-- **Persistent Storage**: Stores (Caching) lyrics locally for faster access.
+-   **Spotify Authentication**: Users can log in with their Spotify account.
+-   **Lyrics Display**: Fetches and displays lyrics for the currently playing track.
+-   **Persistent Storage**: Stores (Caching) lyrics locally for faster access.
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/) (v20.x or later)
-- [Rust](https://www.rust-lang.org/) (latest stable version)
-- [Tauri CLI](https://tauri.app) (v1.0 or later)
-- [Spotify Developer Account](https://developer.spotify.com/)
+-   [Node.js](https://nodejs.org/en/) (v20.x or later)
+-   [Rust](https://www.rust-lang.org/) (latest stable version)
+-   [Tauri CLI](https://tauri.app) (v1.0 or later)
+-   [Spotify Developer Account](https://developer.spotify.com/)
 
 ## Getting Started
 
@@ -45,24 +49,24 @@ _Ensure you have Rust installed. If not, install it using [rustup](https://rustu
 
 ### 3. Set Up Spotify API Credentials
 
-- Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-- Create a new application and note down the **Client ID** and **Client Secret**.
-- Set the Redirect URI to `http://localhost:8081/callback`
+-   Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+-   Create a new application and note down the **Client ID** and **Client Secret**.
+-   Set the Redirect URI to `http://localhost:8081/callback`
 
 ### 4. Set Up the NetEaseCloudMusicAPI
 
-- Use the method provided by the [NeteaseCloudMusicApi]("https://gitlab.com/Binaryify/neteasecloudmusicapi") repository to setup the NetEaseCloudMusicAPI server.
-- In this app, we use docker as the lyrics server (using port 3000).
+-   Use the method provided by the [NeteaseCloudMusicApi]("https://gitlab.com/Binaryify/neteasecloudmusicapi") repository to setup the NetEaseCloudMusicAPI server.
+-   In this app, we use docker as the lyrics server (using port 3000).
 
 ### 5. Build and run the Application
 
-- Development Version
+-   Development Version
 
 ```bash
 npm run tauri dev
 ```
 
-- Release Version
+-   Release Version
 
 ```bash
 npm run tauri build
@@ -107,9 +111,9 @@ npm run tauri build
 
 ### Common Issues
 
-- **Authentication Errors**: Ensure your Spotify API credentials are correct and the Redirect URI is properly set.
-- **Missing Lyrics**: The app relies on external APIs for lyrics. Ensure the APIs are accessible.
-- **Lyrics Mismatching**: Sometimes the lyrics may mismatching, this may occurs due to the NetEaseCloudMusicAPI searching problem, already make some advancement about this such as: translate the name of chinese singer, and remove some irrelevant things in song name, and handle some special case that the singer name cannot be translate properly.
+-   **Authentication Errors**: Ensure your Spotify API credentials are correct and the Redirect URI is properly set.
+-   **Missing Lyrics**: The app relies on external APIs for lyrics. Ensure the APIs are accessible.
+-   **Lyrics Mismatching**: Sometimes the lyrics may mismatching, this may occurs due to the NetEaseCloudMusicAPI searching problem, already make some advancement about this such as: translate the name of chinese singer, and remove some irrelevant things in song name, and handle some special case that the singer name cannot be translate properly.
 
 ## Contribution
 
@@ -119,8 +123,8 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 
 Feel free to create issues if you meet any problem when using this app, plan to do advancement in following things:
 
-- add the lyrics edit page, such that the user can edit the lyrics manually.
-- add the link in the lyrics list page, when user press on the link, it will make spotify jump to the song that user choose.
+-   add the lyrics edit page, such that the user can edit the lyrics manually.
+-   add the link in the lyrics list page, when user press on the link, it will make spotify jump to the song that user choose.
 
 ### LICENSE
 
@@ -128,9 +132,9 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ### Acknowledgements
 
-- [Tauri](https://tauri.app)
-- [React](https://react.dev/)
-- [Vite](https://vitejs.dev/)
-- [TailwindCSS](https://tailwindcss.com/)
-- [Spotify API](https://developer.spotify.com/documentation/web-api)
-- [NetEaseCloudMusicAPI](https://gitlab.com/Binaryify/neteasecloudmusicapi)
+-   [Tauri](https://tauri.app)
+-   [React](https://react.dev/)
+-   [Vite](https://vitejs.dev/)
+-   [TailwindCSS](https://tailwindcss.com/)
+-   [Spotify API](https://developer.spotify.com/documentation/web-api)
+-   [NetEaseCloudMusicAPI](https://gitlab.com/Binaryify/neteasecloudmusicapi)
