@@ -1,6 +1,7 @@
 import parseLRC from "./utils/parseLrc";
 import countLine from "./utils/countLine";
 import { useState, useRef, useMemo, useEffect } from "react";
+import React from "react";
 import { invoke } from "@tauri-apps/api/core";
 
 interface LyricsAreaProps {
@@ -17,7 +18,7 @@ function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
     const [times, setTimes] = useState<number[]>([]);
     const durationRef = useRef<number>(0);
     const [elapsedTime, setElapsedTime] = useState<number>(0);
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const intervalRef = useRef<number | null>(null);
     const lyricsContainer = useRef<HTMLDivElement>(null);
     const prevLineRef = useRef<number>(-1);
     const startTimeRef = useRef<number>(0);
@@ -117,14 +118,14 @@ function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
                     if (isPlayingRef.current) {
                         setElapsedTime(
                             (Date.now() - startTimeRef.current) %
-                                durationRef.current
+                            durationRef.current
                         );
                     }
                 }, 10);
             })
             .catch((_) => setNotFound(true));
 
-        return () => clearInterval(intervalRef.current as NodeJS.Timeout);
+        return () => clearInterval(intervalRef.current as number);
     }, [id]);
 
     useEffect(() => {

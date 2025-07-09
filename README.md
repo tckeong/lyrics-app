@@ -1,7 +1,3 @@
-# <span style="color:gray">Deprecated due to unknown problem of tauri.</span>
-
-![image](error.png)
-
 # Lyrics App
 
 ## Overview

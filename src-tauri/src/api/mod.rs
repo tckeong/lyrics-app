@@ -19,7 +19,7 @@ pub struct LyricsAPI {
 impl LyricsAPI {
     pub fn new() -> Self {
         Self {
-            url: "http://localhost:3000".to_string(),
+            url: "https://neteaseapi-one.vercel.app".to_string(),
             client: reqwest::Client::new(),
             artist: None,
             title: None,

@@ -19,7 +19,7 @@
   "productName": "spotify-lyrics-app",
   "mainBinaryName": "spotify-lyrics-app",
   "version": "1.0.2",
-  "identifier": "com.teo.spotifylyricsapp",
+  "identifier": "com.tckeong.spotifylyricsapp",
   "plugins": {},
   "app": {
     "security": {

@@ -1,3 +1,5 @@
+use crate::{api::LyricsAPI, models::SavedLyric, spotify_api::SpotifyApi, utils::Utils};
+
 #[tauri::command]
 pub async fn get_lyrics() -> Result<String, String> {
     let (title, artist) = SpotifyApi::new().get_title_artist().await?;

@@ -9,11 +9,12 @@ mod utils;
 use actix_web::{rt, web, App, HttpServer};
 use api::server::Token;
 use api::spotify_api::{self};
-use controllers::{
-    auth_check, close_window, get_duration, get_id, get_image_url, get_lyrics, get_lyrics_list,
-    get_play_status, get_time, get_username, login, login_test, lyric_window, original_window,
+use controllers::authentication::{auth_check, get_username, login, login_test};
+use controllers::song_details::{
+    get_duration, get_id, get_image_url, get_lyrics, get_lyrics_list, get_play_status, get_time,
     save_lyrics,
 };
+use controllers::{close_window, lyric_window, original_window};
 use std::{
     env,
     sync::{Arc, Mutex},

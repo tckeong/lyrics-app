@@ -6,3 +6,7 @@ data
 .vscode
 
 *.txt
+
+# ignore IDE configuration files
+.idea
+.vscode
