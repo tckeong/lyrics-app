@@ -7,7 +7,7 @@ import UserButton from "../components/userButton";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import AuthButton from "../components/authButton";
-import * as dialog from "@tauri-apps/plugin-dialog";
+import { message } from "@tauri-apps/plugin-dialog";
 
 function Index() {
     const user = Cookies.get("user") ?? "";
@@ -19,11 +19,10 @@ function Index() {
     const handleStart = async () => {
         invoke("login_test")
             .then(async (_) => {
-                await invoke("lyric_window");
-                invoke("close_window");
+                navigate("/lyrics");
             })
             .catch((_) => {
-                dialog.message("Please login!", {
+                message("Please login!", {
                     title: "spotify-lyrics-app",
                     kind: "info",
                 });

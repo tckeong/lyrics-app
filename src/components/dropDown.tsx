@@ -10,11 +10,11 @@ const Dropdown = ({ open }: DropdownProps) => {
     const logout = () => {
         Cookies.remove("user");
         Cookies.set("logout", "");
-        window.location.reload();
         dialog.message("Logout success!", {
             title: "spotify-lyrics-app",
             kind: "info",
         });
+        window.location.reload();
     };
 
     const handleClick = () => {
