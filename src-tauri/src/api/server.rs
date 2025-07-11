@@ -1,24 +1,18 @@
 use actix_web::{web, HttpResponse, Responder};
 use serde::Deserialize;
-use serde_json::json;
-use std::sync::{Arc, Mutex};
 
 use crate::spotify_api::spotify_credentials::{ClientAuth, TokenAuth};
+use crate::AppState;
 
 #[derive(Deserialize)]
 pub struct CallbackQuery {
     code: String,
 }
 
-#[derive(Deserialize)]
-pub struct TokenRequest {
-    state: String,
-}
-
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Token {
-    auth: Option<TokenAuth>,
-    access_token: Option<String>,
+    pub auth: Option<TokenAuth>,
+    pub access_token: Option<String>,
 }
 
 impl Token {
@@ -30,7 +24,7 @@ impl Token {
     }
 
     pub async fn callback(
-        token: web::Data<Arc<Mutex<Token>>>,
+        state: web::Data<AppState>,
         query: web::Query<CallbackQuery>,
     ) -> impl Responder {
         let code = &query.code;
@@ -38,40 +32,12 @@ impl Token {
         let auth = TokenAuth::auth(client_auth).await.unwrap();
 
         {
-            let mut token = match token.lock() {
-                Ok(token) => token,
-                Err(poisoned) => poisoned.into_inner(),
-            };
-
-            token.auth = Some(auth.clone());
-            token.access_token = Some(auth.get_access_token());
+            let mut new_token = Token::new();
+            new_token.auth = Some(auth.clone());
+            new_token.access_token = Some(auth.get_access_token());
+            state.token.lock().unwrap().replace(new_token);
         }
 
         HttpResponse::Ok().body("Authorization successful! Please close this window.")
-    }
-
-    pub async fn get_token(
-        token_auth: web::Data<Arc<Mutex<Token>>>,
-        req: web::Json<TokenRequest>,
-    ) -> impl Responder {
-        if req.state == "122_)%dhA33sdbu@#$" {
-            let mut token_auth = match token_auth.lock() {
-                Ok(token_auth) => token_auth,
-                Err(poisoned) => poisoned.into_inner(),
-            };
-
-            if let Some(mut auth) = token_auth.auth.clone() {
-                if auth.check().await.unwrap() {
-                    token_auth.access_token = Some(auth.get_access_token());
-                }
-
-                let token = token_auth.access_token.clone().unwrap();
-                HttpResponse::Ok().json(json!({ "token": token }))
-            } else {
-                HttpResponse::Unauthorized().body("")
-            }
-        } else {
-            HttpResponse::Unauthorized().body("")
-        }
     }
 }

@@ -42,6 +42,7 @@ impl TokenAuth {
         let code = client_auth.code.as_str();
         let client = Client::new();
         let callback_uri = "http://localhost:8081/callback";
+        // redirect_uri must match the one used in the authorization request, used for validation
         let forms = [
             ("grant_type", "authorization_code"),
             ("code", code),
@@ -76,9 +77,11 @@ impl TokenAuth {
         if self.time_stamp.timestamp() + 3000 > Utc::now().timestamp() {
             self.access_token = self.refresh().await?;
             self.time_stamp = Utc::now();
+
+            return Ok(true);
         }
 
-        Ok(true)
+        Ok(false)
     }
 
     pub async fn refresh(&self) -> Result<String, Box<dyn Error>> {

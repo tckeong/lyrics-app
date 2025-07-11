@@ -1,33 +1,21 @@
 pub mod authentication;
 pub mod song_details;
 
-#[tauri::command]
-pub async fn lyric_window(app: tauri::AppHandle) -> Result<(), String> {
-    let _ =
-        tauri::WebviewWindowBuilder::new(&app, "label", tauri::WebviewUrl::App("/lyric".into()))
-            .center()
-            .title("spotify-lyrics-app -- Lyrics")
-            .resizable(false)
-            // .transparent(false)
-            .inner_size(800.0, 600.0)
-            .build()
-            .unwrap();
+use crate::AppState;
+use tauri::State;
 
-    Ok(())
-}
+pub async fn get_token_from_state(state: &State<'_, AppState>) -> Option<String> {
+    let mut token = {
+        let mut token_guard = state.token.lock().unwrap();
+        token_guard.as_mut().cloned()?
+    };
 
-#[tauri::command]
-pub fn close_window(window: tauri::Window) {
-    window.close().unwrap();
-}
+    let auth = token.auth.as_mut().unwrap();
 
-#[tauri::command]
-pub async fn original_window(app: tauri::AppHandle) {
-    let _ = tauri::WebviewWindowBuilder::from_config(
-        &app,
-        &app.config().app.windows.get(0).unwrap().clone(),
-    )
-    .unwrap()
-    .build()
-    .unwrap();
+    if let Ok(true) = auth.check().await {
+        token.access_token = Some(auth.get_access_token());
+        state.token.lock().unwrap().replace(token.clone());
+    }
+
+    token.access_token.clone()
 }

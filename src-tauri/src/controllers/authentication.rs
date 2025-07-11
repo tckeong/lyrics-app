@@ -2,7 +2,9 @@ use crate::{spotify_api::SpotifyApi, utils::Utils};
 use reqwest::Url;
 use std::env;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+use crate::{controllers::get_token_from_state, AppState};
+use tauri::State;
+
 #[tauri::command(rename_all = "snake_case")]
 pub fn login(client_id: &str, client_secret: &str) -> Result<String, String> {
     env::set_var("CLIENT_ID", client_id.to_string());
@@ -40,20 +42,20 @@ pub async fn auth_check() -> Result<(String, String), String> {
 
 // return true if test pass, return false if no token found!
 #[tauri::command]
-pub async fn login_test() -> Result<bool, bool> {
-    let test = SpotifyApi::new();
-    let token = test.get_token().await.map_err(|_| false)?;
+pub async fn login_test(state: State<'_, AppState>) -> Result<bool, bool> {
+    let token = get_token_from_state(&state).await;
 
-    if token == "" {
-        Err(false)
-    } else {
+    if let Some(_) = token {
         Ok(true)
+    } else {
+        Err(false)
     }
 }
 
 #[tauri::command]
-pub async fn get_username() -> Result<String, String> {
-    let test = SpotifyApi::new();
+pub async fn get_username(state: State<'_, AppState>) -> Result<String, String> {
+    let token = get_token_from_state(&state).await;
+    let test = SpotifyApi::new(token);
     let user = test.get_user().await.map_err(|_| "No user found!")?;
     let name = {
         match user.display_name {

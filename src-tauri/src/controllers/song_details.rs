@@ -1,8 +1,13 @@
+use crate::AppState;
 use crate::{api::LyricsAPI, models::SavedLyric, spotify_api::SpotifyApi, utils::Utils};
+use tauri::State;
+
+use crate::controllers::get_token_from_state;
 
 #[tauri::command]
-pub async fn get_lyrics() -> Result<String, String> {
-    let (title, artist) = SpotifyApi::new().get_title_artist().await?;
+pub async fn get_lyrics(state: State<'_, AppState>) -> Result<String, String> {
+    let token = get_token_from_state(&state).await;
+    let (title, artist) = SpotifyApi::new(token).get_title_artist().await?;
 
     let lyrics = match Utils::new()
         .check_lyrics(title.clone())
@@ -23,43 +28,49 @@ pub async fn get_lyrics() -> Result<String, String> {
 }
 
 #[tauri::command]
-pub async fn get_image_url() -> Result<String, String> {
-    let img_url = SpotifyApi::new().get_current_img().await?;
+pub async fn get_image_url(state: State<'_, AppState>) -> Result<String, String> {
+    let token = get_token_from_state(&state).await;
+    let img_url = SpotifyApi::new(token).get_current_img().await?;
 
     Ok(img_url)
 }
 
 #[tauri::command]
-pub async fn get_id() -> Result<String, String> {
-    let id = SpotifyApi::new().get_current_id().await?;
+pub async fn get_id(state: State<'_, AppState>) -> Result<String, String> {
+    let token = get_token_from_state(&state).await;
+    let id = SpotifyApi::new(token).get_current_id().await?;
 
     Ok(id)
 }
 
 #[tauri::command]
-pub async fn get_play_status() -> Result<bool, String> {
-    let status = SpotifyApi::new().get_play_status().await?;
+pub async fn get_play_status(state: State<'_, AppState>) -> Result<bool, String> {
+    let token = get_token_from_state(&state).await;
+    let status = SpotifyApi::new(token).get_play_status().await?;
 
     Ok(status)
 }
 
 #[tauri::command]
-pub async fn get_time() -> Result<u64, String> {
-    let time = SpotifyApi::new().get_progress_ms().await?;
+pub async fn get_time(state: State<'_, AppState>) -> Result<u64, String> {
+    let token = get_token_from_state(&state).await;
+    let time = SpotifyApi::new(token).get_progress_ms().await?;
 
     Ok(time)
 }
 
 #[tauri::command]
-pub async fn get_duration() -> Result<u64, String> {
-    let duration = SpotifyApi::new().get_duration().await?;
+pub async fn get_duration(state: State<'_, AppState>) -> Result<u64, String> {
+    let token = get_token_from_state(&state).await;
+    let duration = SpotifyApi::new(token).get_duration().await?;
 
     Ok(duration)
 }
 
 #[tauri::command]
-pub async fn save_lyrics() -> Result<(), String> {
-    let (title, artist) = SpotifyApi::new().get_title_artist().await?;
+pub async fn save_lyrics(state: State<'_, AppState>) -> Result<(), String> {
+    let token = get_token_from_state(&state).await;
+    let (title, artist) = SpotifyApi::new(token.clone()).get_title_artist().await?;
 
     match Utils::new()
         .check_lyrics(title.clone())
@@ -73,7 +84,7 @@ pub async fn save_lyrics() -> Result<(), String> {
                 .await?
                 .get_lyrics()
                 .await?;
-            let img = SpotifyApi::new().get_current_img().await?;
+            let img = SpotifyApi::new(token).get_current_img().await?;
             Utils::new()
                 .save_lyric(title, artist, img, lyrics)
                 .await
