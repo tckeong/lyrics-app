@@ -11,7 +11,6 @@ import { message } from "@tauri-apps/plugin-dialog";
 
 function Index() {
     const user = Cookies.get("user") ?? "";
-    const logout = Cookies.get("logout") === "" ? true : false;
     const login = user !== "";
     const [auth, setAuth] = useState<boolean>(false);
     const navigate = useNavigate();
@@ -42,7 +41,7 @@ function Index() {
                 <div className="flex items-center justify-center col-start-4 col-end-5">
                     {login ? (
                         <UserButton name={user} />
-                    ) : auth && !logout ? (
+                    ) : auth ? (
                         <AuthButton />
                     ) : (
                         <button
