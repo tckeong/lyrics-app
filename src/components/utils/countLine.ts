@@ -1,17 +1,28 @@
+/**
+ * Using binary search to find the index of timeNow within the given times array.
+ * @param timeNow The time to count.
+ * @param times The array of times.
+ * @returns The index of the timeNow in the times array.
+ */
 function countLine(timeNow: number, times: number[]): number {
-  timeNow -= 250;
+    let left = 0;
+    let right = times.length - 1;
+    let index = 0;
 
-  for (let i = 0; i < times.length; i++) {
-    // if timeNow is between two times, return the index of the first time
-    if (i + 1 < times.length && timeNow >= times[i] && timeNow <= times[i + 1]) {
-      return i;
-    } else if (i + 1 === times.length && timeNow >= times[i]) {
-      return i;
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+
+        console.log(mid);
+
+        if (times[mid] >= timeNow) {
+            index = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
     }
-  }
 
-  // unreachable
-  return -1;
+    return Math.max(0, index - 1);
 }
 
 export default countLine;
