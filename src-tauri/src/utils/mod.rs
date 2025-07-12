@@ -1,4 +1,5 @@
 use crate::models::{SavedLyric, SavedLyrics};
+use serde::Deserialize;
 use serde_json::json;
 use std::collections::hash_map::DefaultHasher;
 use std::error::Error;
@@ -7,27 +8,39 @@ use std::hash::Hasher;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::Path;
 
+#[derive(Deserialize, Debug)]
+struct EnvConfig {
+    #[serde(rename = "NETEASE_LYRICS_API_URL")]
+    netease_lyrics_api_url: String,
+    #[serde(rename = "SPOTIFY_API_URL")]
+    spotify_api_url: String,
+    #[serde(rename = "SPOTIFY_REDIRECT_URI")]
+    spotify_redirect_uri: String,
+}
+
 pub struct Utils {
-    path: String,
+    env_path: String,
+    data_path: String,
 }
 
 impl Utils {
     pub fn new() -> Self {
         Utils {
-            path: "./data".to_string(),
+            env_path: "./env.json".to_string(),
+            data_path: "./data".to_string(),
         }
     }
 
     fn create_data_folder(&self) -> Result<&Self, Box<dyn Error>> {
-        if !fs::metadata(self.path.clone()).is_ok() {
-            fs::create_dir(self.path.as_str())?;
+        if !fs::metadata(self.data_path.clone()).is_ok() {
+            fs::create_dir(self.data_path.as_str())?;
         }
 
         Ok(self)
     }
 
     fn create_folder_if_not_exists(&self, path: &str) -> Result<&Self, Box<dyn Error>> {
-        let folder_path = format!("{}/{}", self.path.as_str(), path);
+        let folder_path = format!("{}/{}", self.data_path, path);
         if !fs::metadata(folder_path.clone()).is_ok() {
             fs::create_dir(folder_path.as_str())?;
         }
@@ -53,7 +66,7 @@ impl Utils {
         img: String,
         lyrics: String,
     ) -> Result<(), Box<dyn Error>> {
-        let file_path = format!("{}/lyrics.json", self.path);
+        let file_path = format!("{}/lyrics.json", self.data_path);
         let mut file = OpenOptions::new()
             .read(true)
             .write(true)
@@ -83,7 +96,7 @@ impl Utils {
 
     async fn save_lrc(&self, title: String, lyrics: String) -> Result<(), Box<dyn Error>> {
         let file_name = Self::hash_utf8(&title);
-        let file_path = format!("{}/lyrics/{}.lrc", self.path, file_name);
+        let file_path = format!("{}/lyrics/{}.lrc", self.data_path, file_name);
         let mut file = self
             .create_data_folder()?
             .create_folder_if_not_exists("lyrics")?
@@ -98,7 +111,7 @@ impl Utils {
         client_id: &str,
         client_secret: &str,
     ) -> Result<(), Box<dyn Error>> {
-        let file_path = format!("{}/client/auth.json", self.path);
+        let file_path = format!("{}/client/auth.json", self.data_path);
         let file = self
             .create_data_folder()?
             .create_folder_if_not_exists("client")?
@@ -110,7 +123,7 @@ impl Utils {
     }
 
     pub async fn get_authentication(&self) -> Result<(String, String), Box<dyn Error>> {
-        let file_path = format!("{}/client/auth.json", self.path);
+        let file_path = format!("{}/client/auth.json", self.data_path);
         let file = File::open(file_path)?;
         let auth: serde_json::Value = serde_json::from_reader(file)?;
         let client_id = auth["client_id"].as_str().unwrap().to_string();
@@ -120,7 +133,7 @@ impl Utils {
     }
 
     pub async fn get_lyrics_list(&self) -> Result<SavedLyrics, Box<dyn Error>> {
-        let file_path = format!("{}/lyrics.json", self.path);
+        let file_path = format!("{}/lyrics.json", self.data_path);
         let file = File::open(file_path)?;
         let data: SavedLyrics = serde_json::from_reader(file)?;
 
@@ -128,7 +141,7 @@ impl Utils {
     }
 
     pub async fn check_lyrics(&self, title: String) -> Result<String, Box<dyn Error>> {
-        let path = format!("{}/lyrics", self.path);
+        let path = format!("{}/lyrics", self.data_path);
 
         for entry in fs::read_dir(path)? {
             let entry = entry?;
@@ -149,5 +162,22 @@ impl Utils {
         }
 
         Err("No lyrics found!".into())
+    }
+
+    pub fn get_env(&self, key: &str) -> Result<String, Box<dyn Error>> {
+        let env_data =
+            fs::read_to_string(self.env_path.as_str()).map_err(|_| "Environment file not found")?;
+
+        let env_config: EnvConfig =
+            serde_json::from_str(&env_data).map_err(|_| "Error parsing environment file")?;
+
+        let value = match key {
+            "SPOTIFY_API_URL" => env_config.spotify_api_url,
+            "NETEASE_LYRICS_API_URL" => env_config.netease_lyrics_api_url,
+            "SPOTIFY_REDIRECT_URI" => env_config.spotify_redirect_uri,
+            _ => return Err(format!("Unknown environment variable {}", key).into()),
+        };
+
+        Ok(value)
     }
 }

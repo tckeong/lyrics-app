@@ -7,8 +7,8 @@ mod models;
 mod utils;
 
 use actix_web::{rt, web, App, HttpServer};
-use api::server::Token;
-use api::spotify_api::{self};
+use api::server::Server;
+use api::spotify_api::{self, spotify_credentials::SpotifyToken};
 use controllers::authentication::{auth_check, get_username, login, login_test};
 use controllers::song_details::{
     get_duration, get_id, get_image_url, get_lyrics, get_lyrics_list, get_play_status, get_time,
@@ -21,7 +21,7 @@ use std::{
 
 #[derive(Clone, Default, Debug)]
 pub struct AppState {
-    token: Arc<Mutex<Option<Token>>>,
+    token: Arc<Mutex<Option<SpotifyToken>>>,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -39,7 +39,7 @@ pub fn run() {
                     HttpServer::new(move || {
                         App::new()
                             .app_data(web::Data::new(state.clone()))
-                            .route("/callback", web::get().to(Token::callback))
+                            .route("/callback", web::get().to(Server::callback))
                     })
                     .bind(ip_addr)
                     .unwrap()

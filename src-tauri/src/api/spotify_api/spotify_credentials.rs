@@ -1,24 +1,25 @@
 use crate::models::{AuthResponse, RefreshResponse};
+use crate::utils::Utils;
 use chrono::{DateTime, Utc};
 use reqwest::Client;
 use std::{env, error::Error};
 
-pub struct ClientAuth {
+pub struct ClientCredential {
     client_id: String,
     client_secret: String,
     code: String,
 }
 
 #[derive(Debug, Clone)]
-pub struct TokenAuth {
+pub struct SpotifyToken {
     client_id: String,
     client_secret: String,
-    access_token: String,
+    pub access_token: Option<String>,
     refresh_token: String,
     time_stamp: DateTime<Utc>,
 }
 
-impl ClientAuth {
+impl ClientCredential {
     pub fn get_credentials(code: String) -> Result<Self, Box<dyn std::error::Error>> {
         let client_id = env::var("CLIENT_ID").expect("");
         let client_secret = env::var("CLIENT_SECRET").expect("");
@@ -27,7 +28,7 @@ impl ClientAuth {
             return Err("CLIENT_ID or CLIENT_SECRET not found".into());
         }
 
-        Ok(ClientAuth {
+        Ok(ClientCredential {
             client_id,
             client_secret,
             code,
@@ -35,13 +36,14 @@ impl ClientAuth {
     }
 }
 
-impl TokenAuth {
-    pub async fn auth(client_auth: ClientAuth) -> Result<Self, Box<dyn Error>> {
+impl SpotifyToken {
+    pub async fn auth(client_auth: ClientCredential) -> Result<Self, Box<dyn Error>> {
         let client_id = client_auth.client_id.as_str();
         let client_secret = client_auth.client_secret.as_str();
         let code = client_auth.code.as_str();
         let client = Client::new();
-        let callback_uri = "http://localhost:8081/callback";
+        let callback_uri = Utils::new().get_env("SPOTIFY_REDIRECT_URI").unwrap();
+        let callback_uri = callback_uri.as_str();
         // redirect_uri must match the one used in the authorization request, used for validation
         let forms = [
             ("grant_type", "authorization_code"),
@@ -50,7 +52,7 @@ impl TokenAuth {
         ];
 
         let response = client
-            .post("https://accounts.spotify.com/api/token")
+            .post(Utils::new().get_env("SPOTIFY_API_URL").unwrap().as_str())
             .header(
                 reqwest::header::CONTENT_TYPE,
                 "application/x-www-form-urlencoded",
@@ -62,10 +64,10 @@ impl TokenAuth {
             .json::<AuthResponse>()
             .await?;
 
-        let result = TokenAuth {
+        let result = SpotifyToken {
             client_id: client_id.to_string(),
             client_secret: client_secret.to_string(),
-            access_token: response.access_token,
+            access_token: Some(response.access_token),
             refresh_token: response.refresh_token,
             time_stamp: Utc::now(),
         };
@@ -74,8 +76,8 @@ impl TokenAuth {
     }
 
     pub async fn check(&mut self) -> Result<bool, Box<dyn Error>> {
-        if self.time_stamp.timestamp() + 3000 > Utc::now().timestamp() {
-            self.access_token = self.refresh().await?;
+        if self.time_stamp.timestamp() + 3000 >= Utc::now().timestamp() {
+            self.access_token = Some(self.refresh().await?);
             self.time_stamp = Utc::now();
 
             return Ok(true);
@@ -96,7 +98,7 @@ impl TokenAuth {
         ];
 
         let response = client
-            .post("https://accounts.spotify.com/api/token")
+            .post(Utils::new().get_env("SPOTIFY_API_URL").unwrap().as_str())
             .header(
                 reqwest::header::CONTENT_TYPE,
                 "application/x-www-form-urlencoded",
@@ -111,7 +113,7 @@ impl TokenAuth {
         Ok(response.access_token)
     }
 
-    pub fn get_access_token(&self) -> String {
+    pub fn get_access_token(&self) -> Option<String> {
         self.access_token.clone()
     }
 }

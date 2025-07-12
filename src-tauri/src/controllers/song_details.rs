@@ -1,5 +1,7 @@
 use crate::AppState;
-use crate::{api::LyricsAPI, models::SavedLyric, spotify_api::SpotifyApi, utils::Utils};
+use crate::{
+    api::lyrics_api::LyricsAPI, models::SavedLyric, spotify_api::SpotifyApi, utils::Utils,
+};
 use tauri::State;
 
 use crate::controllers::get_token_from_state;
