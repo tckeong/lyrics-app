@@ -11,8 +11,8 @@ use api::server::Server;
 use api::spotify_api::{self, spotify_credentials::SpotifyToken};
 use controllers::authentication::{auth_check, get_username, login, login_test};
 use controllers::song_details::{
-    get_duration, get_id, get_image_url, get_lyrics, get_lyrics_list, get_play_status, get_time,
-    save_lyrics,
+    get_duration, get_id, get_image_url, get_lyrics, get_lyrics_list, get_play_status,
+    get_progress_time, save_lyrics,
 };
 use std::{
     env,
@@ -61,7 +61,7 @@ pub fn run() {
             get_lyrics,
             get_id,
             get_play_status,
-            get_time,
+            get_progress_time,
             save_lyrics,
             auth_check,
             get_lyrics_list,

@@ -54,7 +54,7 @@ pub async fn get_play_status(state: State<'_, AppState>) -> Result<bool, String>
 }
 
 #[tauri::command]
-pub async fn get_time(state: State<'_, AppState>) -> Result<u64, String> {
+pub async fn get_progress_time(state: State<'_, AppState>) -> Result<u64, String> {
     let token = get_token_from_state(&state).await;
     let time = SpotifyApi::new(token).get_progress_ms().await?;
 

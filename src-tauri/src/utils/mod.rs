@@ -18,6 +18,12 @@ struct EnvConfig {
     spotify_redirect_uri: String,
 }
 
+#[derive(Deserialize)]
+struct ClientAuth {
+    client_id: String,
+    client_secret: String,
+}
+
 pub struct Utils {
     env_path: String,
     data_path: String,
@@ -125,9 +131,9 @@ impl Utils {
     pub async fn get_authentication(&self) -> Result<(String, String), Box<dyn Error>> {
         let file_path = format!("{}/client/auth.json", self.data_path);
         let file = File::open(file_path)?;
-        let auth: serde_json::Value = serde_json::from_reader(file)?;
-        let client_id = auth["client_id"].as_str().unwrap().to_string();
-        let client_secret = auth["client_secret"].as_str().unwrap().to_string();
+        let client_auth: ClientAuth = serde_json::from_reader(file)?;
+        let client_id = client_auth.client_id;
+        let client_secret = client_auth.client_secret;
 
         Ok((client_id, client_secret))
     }
@@ -150,7 +156,7 @@ impl Utils {
                 if let Some(file_name) = path.file_name() {
                     let file_name = file_name.to_str().unwrap();
                     let file_name = Path::new(file_name).file_stem().unwrap().to_str().unwrap();
-                    if Self::hash_utf8(title.as_str()) == file_name.to_string() {
+                    if Self::hash_utf8(title.as_str()) == file_name {
                         let mut file = File::open(path)?;
                         let mut data = String::new();
                         file.read_to_string(&mut data)?;
@@ -165,11 +171,11 @@ impl Utils {
     }
 
     pub fn get_env(&self, key: &str) -> Result<String, Box<dyn Error>> {
-        let env_data =
-            fs::read_to_string(self.env_path.as_str()).map_err(|_| "Environment file not found")?;
+        let env_file =
+            File::open(self.env_path.as_str()).map_err(|_| "Environment file not found")?;
 
         let env_config: EnvConfig =
-            serde_json::from_str(&env_data).map_err(|_| "Error parsing environment file")?;
+            serde_json::from_reader(env_file).map_err(|_| "Error parsing environment file")?;
 
         let value = match key {
             "SPOTIFY_API_URL" => env_config.spotify_api_url,
