@@ -1,7 +1,6 @@
 import HomeButton from "../components/homeButton";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import styles from "./styles/lyric";
 import LyricsArea from "../components/lyricsArea";
 import SaveButton from "../components/saveButton";
@@ -14,7 +13,6 @@ function Lyrics() {
     const timeOffSet = useRef<number>(offset);
     const prevSpeed = useRef<number>(timeOffSet.current - offset);
     const [speed, setSpeed] = useState<number>(timeOffSet.current - offset);
-    const navigate = useNavigate();
 
     useEffect(() => {
         invoke("get_image_url").then((url) => {
@@ -59,7 +57,6 @@ function Lyrics() {
                 />
                 <HomeButton
                     position="row-start-1 row-end-2 col-start-5 col-end-6"
-                    fn={() => navigate("/")}
                 />
                 <p className={styles.text}>time delay: {speed} ms</p>
                 <AddMinusButton

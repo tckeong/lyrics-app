@@ -12,8 +12,6 @@ function countLine(timeNow: number, times: number[]): number {
     while (left <= right) {
         const mid = Math.floor((left + right) / 2);
 
-        console.log(mid);
-
         if (times[mid] >= timeNow) {
             index = mid;
             right = mid - 1;

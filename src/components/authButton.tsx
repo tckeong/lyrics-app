@@ -4,7 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-shell";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import * as dialog from "@tauri-apps/plugin-dialog";
+import { message } from "@tauri-apps/plugin-dialog";
 
 function AuthButton() {
     const navigate = useNavigate();
@@ -16,7 +16,7 @@ function AuthButton() {
         err: string | null
     ) => {
         if (username) {
-            dialog.message("login success!", {
+            message("login success!", {
                 title: "spotify-lyrics-app",
                 kind: "info",
             });
@@ -24,7 +24,7 @@ function AuthButton() {
             Cookies.set("user", username as string);
             navigate("/");
         } else {
-            dialog.message(`login unsuccess! ${err}`, {
+            message(`login unsuccess! ${err}`, {
                 title: "spotify-lyrics-app",
                 kind: "info",
             });
@@ -52,7 +52,7 @@ function AuthButton() {
                                 .catch((err) =>
                                     loginMessage(false, err as string)
                                 );
-                        }, 1000);
+                        }, 2000);
                     })
                     .catch((err) => console.log(err));
             });

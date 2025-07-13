@@ -4,24 +4,19 @@ import { useNavigate } from "react-router-dom";
 
 interface HomeButtonProps {
     position: string;
-    fn?: () => void;
 }
 
-function HomeButton({position, fn}: HomeButtonProps) {
+function HomeButton({ position }: HomeButtonProps) {
     const navigate = useNavigate();
     const className = "text-xl mx-12 my-8 hover:text-sky-800 " + position;
 
     const handleBack = () => {
-        if (fn) {
-            fn();
-        } else {
-            navigate("/");
-        }
+        navigate("/");
     }
 
     return (
         <button className={className} onClick={handleBack}>
-            <FontAwesomeIcon icon={faHome} size="xl"/> Home
+            <FontAwesomeIcon icon={faHome} size="xl" /> Home
         </button>
     );
 }

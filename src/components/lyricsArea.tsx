@@ -9,20 +9,51 @@ interface LyricsAreaProps {
     timeOffSet: React.MutableRefObject<number>;
 }
 
+// Clear the previous line's styles
+// useMemo will not trigger re-render, so we need to clear the previous line's styles manually
+function clearPrevLineStyle(prevLine: HTMLElement | null, prevLineIndex: number, index: number) {
+    if (!prevLine) return;
+
+    prevLine.classList.remove("font-bold");
+
+    if (prevLineIndex < index) {
+        prevLine.classList.replace("text-gray-900", "text-gray-600")
+    } else if (prevLineIndex > index) {
+        prevLine.classList.replace("text-gray-900", "text-white");
+    }
+}
+
 function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
     const className = `overflow-y-auto h-full w-full ${position} font-mono text-2xl text-center py-10 font-medium mx-8`;
+
     const [notFound, setNotFound] = useState<boolean>(false);
+    // check if the user is not playing any music
     const [notPlaying, setNotPlaying] = useState<boolean>(false);
+
+    // the id of currently playing song of spotify
     const [id, setId] = useState<string>("");
     const [lyrics, setLyrics] = useState<string[]>([]);
     const [times, setTimes] = useState<number[]>([]);
-    const durationRef = useRef<number>(0);
     const [elapsedTime, setElapsedTime] = useState<number>(0);
+
+    // the total duration of the song
+    const durationRef = useRef<number>(0);
     const intervalRef = useRef<number | null>(null);
+
+    // Reference to check if the music is playing
+    // This is used to avoid unnecessary re-renders and calculations
+    // Can be visible dynamically in a interval reference
+    const isPlayingRef = useRef<boolean>(false);
+
+    // Reference to the lyrics container and trace the previous line index in the container
     const lyricsContainer = useRef<HTMLDivElement>(null);
     const prevLineRef = useRef<number>(-1);
-    const startTimeRef = useRef<number>(0);
-    const isPlayingRef = useRef<boolean>(false);
+
+    // Reference to track the progress time of the song
+    // lastUpdateTimeRef is to track the last time the progress time was updated
+    const progressTimeRef = useRef<number>(0);
+    const lastUpdateTimeRef = useRef<number>(0);
+
     const index = useMemo(() => countLine(elapsedTime, times), [elapsedTime]);
 
     const centerLyric = (index: number) => {
@@ -31,26 +62,14 @@ function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
 
         if (lyricsContainer.current) {
             const container = lyricsContainer.current;
-            const prevLine = container.children[
-                prevLineRef.current
-            ] as HTMLElement;
             const currentLine = container.children[index] as HTMLElement;
+            const prevLine = container.children[prevLineRef.current] as HTMLElement;
 
-            if (prevLine && prevLineRef.current < index) {
-                prevLine.classList.remove("text-gray-900");
-                prevLine.classList.remove("font-bold");
-                prevLine.classList.remove("text-white");
-                prevLine.classList.add("text-gray-600");
-            } else if (prevLine && prevLineRef.current > index) {
-                prevLine.classList.remove("text-gray-900");
-                prevLine.classList.remove("font-bold");
-                prevLine.classList.add("text-white");
-            }
+            clearPrevLineStyle(prevLine, prevLineRef.current, index);
 
             if (currentLine) {
-                currentLine.classList.remove("text-white");
+                currentLine.classList.replace("text-white", "text-gray-900");
                 currentLine.classList.add("font-bold");
-                currentLine.classList.add("text-gray-900");
                 const containerHeight = container.clientHeight;
                 const lineHeight = currentLine.clientHeight;
                 const scrollTop =
@@ -62,6 +81,7 @@ function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
         }
     };
 
+    // Check the current playing song and the playing status every 0.5 seconds
     useEffect(() => {
         const interval = setInterval(() => {
             invoke("get_id")
@@ -76,33 +96,43 @@ function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
             invoke("get_play_status").then((isPlaying) => {
                 isPlayingRef.current = isPlaying as boolean;
             });
-        }, 1000);
+        }, 500);
 
         return () => clearInterval(interval);
     }, []);
 
+    // Update the progress time of the song every 3 seconds.
+    // This is used to align the lyrics with the actual song progress.
+    // This is necessary because sometime the song status maybe changed.
     useEffect(() => {
         const interval = setInterval(() => {
-            invoke("get_time").then((time) => {
-                startTimeRef.current =
-                    Date.now() - (time as number) + timeOffSet.current;
+            invoke("get_progress_time").then((time) => {
+                progressTimeRef.current = (time as number) + timeOffSet.current;
+                lastUpdateTimeRef.current = Date.now();
             });
-        }, 5000);
+        }, 3000);
 
         return () => clearInterval(interval);
     }, []);
 
+    // Fetch the progress time immediately when the time offset changes.
     useEffect(() => {
-        invoke("get_time").then((time) => {
-            startTimeRef.current =
-                Date.now() - (time as number) + timeOffSet.current;
+        invoke("get_progress_time").then((time) => {
+            progressTimeRef.current = (time as number) + timeOffSet.current;
+            lastUpdateTimeRef.current = Date.now();
         });
-    }, [timeOffSet.current, id]);
+    }, [timeOffSet.current]);
 
+    // Update the duration and the progress time when the song changes.
     useEffect(() => {
         invoke("get_duration")
             .then((duration) => (durationRef.current = duration as number))
             .catch((_) => console.log("Error getting duration"));
+
+        invoke("get_progress_time").then((time) => {
+            progressTimeRef.current = (time as number) + timeOffSet.current;
+            lastUpdateTimeRef.current = Date.now();
+        });
 
         invoke("get_lyrics")
             .then((lrc) => {
@@ -117,11 +147,11 @@ function LyricsArea({ position, timeOffSet }: LyricsAreaProps) {
                 intervalRef.current = setInterval(() => {
                     if (isPlayingRef.current) {
                         setElapsedTime(
-                            (Date.now() - startTimeRef.current) %
-                            durationRef.current
+                            progressTimeRef.current +
+                            (Date.now() - lastUpdateTimeRef.current)
                         );
                     }
-                }, 10);
+                }, 50);
             })
             .catch((_) => setNotFound(true));
 
